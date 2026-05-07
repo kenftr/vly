@@ -13,8 +13,8 @@
 <body class="text-gray-100 font-sans antialiased pb-20">
 
     <div class="max-w-3xl mx-auto p-4 pt-8">
-        <div class="app-card rounded-2xl shadow-sm border p-6 mb-6 sticky top-4 z-10">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div id="stickyHeader" class="app-card rounded-2xl shadow-sm border p-6 mb-6 sticky top-4 z-10">
+            <div class="header-row flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <h1 class="text-2xl font-bold text-slate-50">Ôn tập Trắc nghiệm</h1>
                 <div class="flex flex-wrap gap-2">
                     <button id="continueBtn" class="hidden text-slate-100 font-semibold py-2.5 px-4 rounded-lg transition duration-200 secondary-btn">
@@ -619,9 +619,19 @@
         const scoreDisplay = document.getElementById('scoreDisplay');
         const statsSummary = document.getElementById('statsSummary');
         const statsChart = document.getElementById('statsChart');
+        const stickyHeader = document.getElementById('stickyHeader');
 
         function shuffleArray(array) {
             return array.sort(() => Math.random() - 0.5);
+        }
+
+        function updateHeaderCollapse() {
+            if (!stickyHeader) return;
+            if (window.scrollY > 120) {
+                stickyHeader.classList.add('is-collapsed');
+            } else {
+                stickyHeader.classList.remove('is-collapsed');
+            }
         }
 
         function initSelectBox() {
@@ -847,8 +857,12 @@
         });
         retryBtn.addEventListener('click', () => loadLesson(lessonSelect.value));
 
+        window.addEventListener('scroll', updateHeaderCollapse, { passive: true });
+        window.addEventListener('load', updateHeaderCollapse);
+
         initSelectBox();
         updateContinueButton();
+        updateHeaderCollapse();
         if (fileList.length > 0) {
             const lastLesson = localStorage.getItem(LAST_LESSON_KEY);
             const initialLesson = lastLesson || fileList[0];
