@@ -24,6 +24,43 @@ body {
     background: linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(15, 23, 42, 0.95) 100%);
     border-color: var(--border);
     box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35);
+    transition: padding 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.app-card.is-collapsed {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.app-card.is-collapsed h1 {
+    font-size: 1.25rem;
+}
+
+.app-card.is-collapsed .header-row {
+    margin-bottom: 0.5rem;
+}
+
+.app-card.is-collapsed #lessonSelect {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.app-card.is-collapsed #scoreDisplay {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.stats-panel {
+    overflow: hidden;
+    max-height: 480px;
+    opacity: 1;
+    transition: max-height 200ms ease, opacity 200ms ease, margin-top 200ms ease;
+}
+
+.app-card.is-collapsed .stats-panel {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
 }
 
 .card {
@@ -114,71 +151,6 @@ body {
     transform: translateY(-1px);
     background: rgba(59, 130, 246, 0.2);
     border-color: rgba(59, 130, 246, 0.6);
-}
-
-.stats-panel {
-    margin-top: 1rem;
-    padding: 1rem;
-    border-radius: 1rem;
-    border: 1px solid rgba(59, 130, 246, 0.15);
-    background: rgba(15, 23, 42, 0.6);
-}
-
-.stats-header {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    margin-bottom: 0.75rem;
-}
-
-.stats-title {
-    font-weight: 600;
-    color: #e2e8f0;
-}
-
-.stats-summary {
-    font-size: 0.9rem;
-    color: #94a3b8;
-}
-
-.stats-chart {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.stats-row {
-    display: grid;
-    grid-template-columns: 64px 1fr auto;
-    gap: 0.75rem;
-    align-items: center;
-}
-
-.stats-label {
-    font-size: 0.85rem;
-    color: #cbd5f5;
-}
-
-.stats-bar {
-    height: 10px;
-    background: rgba(148, 163, 184, 0.2);
-    border-radius: 999px;
-    overflow: hidden;
-    display: flex;
-}
-
-.stats-correct {
-    background: linear-gradient(90deg, rgba(16, 185, 129, 0.9), rgba(16, 185, 129, 0.5));
-}
-
-.stats-wrong {
-    background: linear-gradient(90deg, rgba(239, 68, 68, 0.9), rgba(239, 68, 68, 0.5));
-}
-
-.stats-meta {
-    font-size: 0.8rem;
-    color: #94a3b8;
-    white-space: nowrap;
 }
 
 @keyframes fadeUp {
