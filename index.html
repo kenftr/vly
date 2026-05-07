@@ -35,8 +35,17 @@
             <div class="stats-panel mt-4">
                 <div class="stats-header">
                     <div class="stats-title">Thống kê</div>
-                    <div id="statsSummary" class="stats-summary">Chưa có dữ liệu.</div>
+                    <div class="stats-actions">
+                        <button id="resetStatsBtn" class="stats-reset-btn" type="button" aria-label="Đặt lại thống kê">
+                            <span class="icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 1 1-9.9-1h-2.1a7 7 0 1 0 7-7z" />
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
                 </div>
+                <div id="statsSummary" class="stats-summary">Chưa có dữ liệu.</div>
                 <div id="statsChart" class="stats-chart"></div>
             </div>
         </div>
@@ -605,6 +614,7 @@
 
         const STORAGE_KEY = 'quizAttempts';
         const LAST_LESSON_KEY = 'lastLesson';
+        const STARRED_KEY = 'quizStarred';
 
         let currentQuestions = [];
         let userAnswers = {};
@@ -620,9 +630,31 @@
         const statsSummary = document.getElementById('statsSummary');
         const statsChart = document.getElementById('statsChart');
         const stickyHeader = document.getElementById('stickyHeader');
+        const resetStatsBtn = document.getElementById('resetStatsBtn');
 
         function shuffleArray(array) {
             return array.sort(() => Math.random() - 0.5);
+        }
+
+        function loadStarred() {
+            try {
+                const raw = localStorage.getItem(STARRED_KEY);
+                const parsed = raw ? JSON.parse(raw) : {};
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (error) {
+                console.error('Lỗi đọc sao:', error);
+                return {};
+            }
+        }
+
+        function saveStarred(starred) {
+            localStorage.setItem(STARRED_KEY, JSON.stringify(starred));
+        }
+
+        function getStarredSet(lessonKey) {
+            const starred = loadStarred();
+            const list = starred[lessonKey] || [];
+            return new Set(list.map(String));
         }
 
         function updateHeaderCollapse() {
@@ -687,8 +719,21 @@
             const totalTime = filtered.reduce((sum, item) => sum + item.durationSec, 0);
             const accuracy = totalQuestions ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
             const avgTime = Math.round(totalTime / filtered.length);
+            const wrongPercent = 100 - accuracy;
 
-            statsSummary.textContent = `Lần làm: ${filtered.length} · Tỷ lệ đúng: ${accuracy}% · TB thời gian: ${formatDuration(avgTime)}`;
+            statsSummary.innerHTML = `
+                <div class="stats-overview">
+                    <div class="stats-overview-row">
+                        <div class="stats-overview-label">Tỷ lệ đúng</div>
+                        <div class="stats-overview-value">${accuracy}%</div>
+                    </div>
+                    <div class="stats-overview-bar">
+                        <div class="stats-overview-correct" style="width: ${accuracy}%;"></div>
+                        <div class="stats-overview-wrong" style="width: ${wrongPercent}%;"></div>
+                    </div>
+                    <div class="stats-overview-meta">Lần làm: ${filtered.length} · TB thời gian: ${formatDuration(avgTime)}</div>
+                </div>
+            `;
 
             statsChart.innerHTML = filtered.map((item, index) => {
                 const correctPercent = item.total ? Math.round((item.score / item.total) * 100) : 0;
@@ -756,8 +801,12 @@
             }
 
             submitBtn.classList.remove('hidden');
+            const lessonKey = lessonSelect.value;
+            const starredSet = getStarredSet(lessonKey);
 
-            const html = currentQuestions.map((q, index) => `
+            const html = currentQuestions.map((q, index) => {
+                const isStarred = starredSet.has(String(q.id));
+                return `
                 <div class="card p-5 sm:p-6 rounded-2xl border" id="card-${q.id}" style="animation-delay: ${index * 40}ms;">
                     <p class="card-title font-medium text-lg mb-5">
                         <span class="font-bold text-blue-400 mr-1">Câu ${index + 1}:</span>
@@ -774,14 +823,44 @@
                             </label>
                         `).join('')}
                     </div>
-                    <div class="mt-4 flex justify-end">
+                    <div class="card-actions mt-4 flex flex-wrap justify-end gap-2">
+                        <button class="star-btn ${isStarred ? 'is-starred' : ''}" type="button" onclick="toggleStar('${q.id}')" data-question-id="${q.id}" aria-pressed="${isStarred ? 'true' : 'false'}" aria-label="${isStarred ? 'Bỏ gắn sao' : 'Gắn sao'}">
+                            <span class="icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path d="M12 17.27 18.18 21 16.54 13.97 22 9.24 14.81 8.63 12 2 9.19 8.63 2 9.24 7.46 13.97 5.82 21z" />
+                                </svg>
+                            </span>
+                        </button>
                         <button class="answer-btn" type="button" onclick="showAnswer('${q.id}')">Xem đáp án</button>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             quizContainer.innerHTML = html;
         }
+
+        window.toggleStar = (questionId) => {
+            const lessonKey = lessonSelect.value;
+            const starred = loadStarred();
+            const list = Array.isArray(starred[lessonKey]) ? starred[lessonKey].map(String) : [];
+            const set = new Set(list);
+            const id = String(questionId);
+            if (set.has(id)) {
+                set.delete(id);
+            } else {
+                set.add(id);
+            }
+            starred[lessonKey] = Array.from(set);
+            saveStarred(starred);
+
+            const button = document.querySelector(`.star-btn[data-question-id="${id}"]`);
+            if (!button) return;
+            const isStarred = set.has(id);
+            button.classList.toggle('is-starred', isStarred);
+            button.setAttribute('aria-pressed', isStarred ? 'true' : 'false');
+            button.setAttribute('aria-label', isStarred ? 'Bỏ gắn sao' : 'Gắn sao');
+        };
 
         window.showAnswer = (questionId) => {
             const question = currentQuestions.find(q => String(q.id) === String(questionId));
@@ -856,6 +935,10 @@
             loadLesson(target);
         });
         retryBtn.addEventListener('click', () => loadLesson(lessonSelect.value));
+        resetStatsBtn.addEventListener('click', () => {
+            localStorage.removeItem(STORAGE_KEY);
+            renderStats(lessonSelect.value);
+        });
 
         window.addEventListener('scroll', updateHeaderCollapse, { passive: true });
         window.addEventListener('load', updateHeaderCollapse);
