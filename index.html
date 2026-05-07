@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn tập Trắc nghiệm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,600;8..144,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body class="text-gray-100 font-sans antialiased pb-20">
+
+    <div class="max-w-3xl mx-auto p-4 pt-8">
+        <div class="app-card rounded-2xl shadow-sm border p-6 mb-6 sticky top-4 z-10">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                <h1 class="text-2xl font-bold text-slate-50">Ôn tập Trắc nghiệm</h1>
+                <div class="flex flex-wrap gap-2">
+                    <button id="continueBtn" class="hidden text-slate-100 font-semibold py-2.5 px-4 rounded-lg transition duration-200 secondary-btn">
+                        Làm tiếp
+                    </button>
+                    <button id="submitBtn" class="hidden text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition duration-200 transform hover:-translate-y-0.5 primary-btn">
+                        Nộp bài
+                    </button>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4 items-center">
+                <select id="lessonSelect" class="w-full sm:w-2/3 p-3 border border-slate-700 rounded-lg bg-slate-900 text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                    </select>
+                <div id="scoreDisplay" class="hidden w-full sm:w-1/3 text-center bg-blue-900/40 text-blue-100 font-bold py-3 rounded-lg border border-blue-500/40">
+                    Điểm: 0/0
+                </div>
+            </div>
+            <div class="stats-panel mt-4">
+                <div class="stats-header">
+                    <div class="stats-title">Thống kê</div>
+                    <div id="statsSummary" class="stats-summary">Chưa có dữ liệu.</div>
+                </div>
+                <div id="statsChart" class="stats-chart"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer" class="space-y-6">
+            <p class="text-center text-slate-400 mt-10">Đang tải dữ liệu...</p>
+        </div>
+
+        <button id="retryBtn" class="hidden mt-4 w-full font-bold py-4 px-6 rounded-xl transition duration-200 secondary-btn">
+            Làm lại phần này
+        </button>
+    </div>
+
+    <script>
+        const fileList = [
+            '16',
+            '17',
+            '19,20',
+            '22',
+            '18',
+            '21'
+        ];
+
+        const sampleData = {
+            '16': [
+                {
+                    "id": "532127394",
+                    "content": "Cho 2 điện tích có độ lớn không đổi, đặt cách nhau một khoảng không đổi. Lực tương tác giữa chúng sẽ lớn nhất khi đặt trong",
+                    "options": {
+                        "A": "chân không.",
+                        "B": "không khí ở điều kiện tiêu chuẩn.",
+                        "C": "dầu hỏa.",
+                        "D": "nước nguyên chất."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532127390",
+                    "content": "Phát biểu nào sau đây không đúng?",
+                    "options": {
+                        "A": "Hằng số điện môi của một môi trường cho biết lực tương tác điện tích trong môi trường đó nhỏ hơn khi chúng đặt trong chân không bao nhiêu lần.",
+                        "B": "Hằng số điện môi của chân không bằng 1.",
+                        "C": "Điện môi là môi trường cách điện.",
+                        "D": "Hằng số điện môi có thể nhỏ hơn 1."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532127388",
+                    "content": "Bốn vật kích thước nhỏ A, B, C, D\nA, B, C, D\nnhiễm điện. Vật\nA\nhút vật B nhưng đẩy vật C vật C hút vật",
+                    "options": {
+                        "D": "B âm, C âm, D dương.",
+                        "A": "B âm, C dương, D dương.",
+                        "B": "B dương, C âm, D dương.",
+                        "C": "B âm, C dương, D âm."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532127392",
+                    "content": "Hai chất điểm mang điện tích\nq1\nvà\nq2\nkhi đặt gần nhau chúng đẩy nhau. Kết luận nào sau đây không đúng?",
+                    "options": {
+                        "A": "q1\nvà\nq2\ntrái dấu nhau.",
+                        "B": "q1\nvà\nq2\nđều là điện tích âm.",
+                        "C": "q1\nvà\nq2\ncùng dấu nhau.",
+                        "D": "q1\nvà\nq2\nđều là điện tích dương."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532127385",
+                    "content": "Trong hệ SI, đơn vị điện tích là",
+                    "options": {
+                        "A": "culông (C).",
+                        "B": "vôn (V).",
+                        "C": "vôn trên mét (V/m).",
+                        "D": "fara (F)."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532127389",
+                    "content": "Dấu của các điện tích\nq1, q2\ntrên hình là",
+                    "options": {
+                        "A": "q1.q2>0",
+                        "B": "q1>0,q2<0.",
+                        "C": "q1<0,q2>0.",
+                        "D": "q1.q2<0"
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532127387",
+                    "content": "Biểu thức của định luật Coulomb là",
+                    "options": {
+                        "A": "F=|q1q2|r2.",
+                        "B": "F=k|q1q2|r2.",
+                        "C": "F=|q1q2|kr2.",
+                        "D": "F=kq1q2r2."
+                    },
+                    "answer": "B"
+                },
+                {
+                    "id": "532127391",
+                    "content": "Độ lớn của lực tương tác giữa hai điện tích điểm trong không khí",
+                    "options": {
+                        "A": "tỉ lệ với khoảng cách giữa hai điện tích.",
+                        "B": "tỉ lệ nghịch với khoảng cách giữa hai điện tích.",
+                        "C": "tỉ lệ với bình phương khoảng cách giữa hai điện tích.",
+                        "D": "tỉ lệ nghịch với bình phương khoảng cách giữa hai điện tích."
+                    },
+                    "answer": "D"
+                }
+            ],
+            '17': [
+                {
+                    "id": "532129373",
+                    "content": "Điện trường được tạo ra bởi điện tích, là dạng vật chất tồn tại quanh điện tích và",
+                    "options": {
+                        "A": "tác dụng lực điện lên mọi vật đặt trong nó.",
+                        "B": "tác dụng lực lên mọi vật đặt trong nó.",
+                        "C": "truyền lực cho các điện tích.",
+                        "D": "truyền tương tác giữa các điện tích."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532129371",
+                    "content": "Những đường sức điện của điện trường xung quanh một điện tích điểm\nQ<0\ncó dạng là những",
+                    "options": {
+                        "A": "đường thẳng có chiều đi ra khỏi điện tích Q.",
+                        "B": "đường cong và đường thẳng có chiều đi vào điện tích Q.",
+                        "C": "đường cong và đường thẳng có chiều đi ra khỏi điện tích Q.",
+                        "D": "đường thẳng có chiều đi vào điện tích Q."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532129375",
+                    "content": "Đại lượng nào dưới đây không liên quan tới cường độ điện trường của một điện tích điểm Q đặt tại một điểm trong chân không?",
+                    "options": {
+                        "A": "Hằng số điện của chân không.",
+                        "B": "Độ lớn của điện tích Q.",
+                        "C": "Khoảng cách r từ Q đến điểm quan sát.",
+                        "D": "Độ lớn của điện tích thử q đặt tại điểm quan sát."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532129378",
+                    "content": "Trong chân không đặt cố định một điện tích điểm\nQ.\nMột điểm\nM\ncách\nQ\nmột khoảng\nr.\nTập hợp những điểm có độ lớn cường độ điện trường bằng độ lớn cường độ điện trường tại M là",
+                    "options": {
+                        "A": "một mặt phẳng đi qua\nM.",
+                        "B": "các mặt cầu đi qua\nM.",
+                        "C": "mặt cầu tâm\nQ\nvà đi qua\nM.",
+                        "D": "một đường tròn đi qua\nM."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532129367",
+                    "content": "Một quả cầu nhỏ mang điện tích\nq = 10-9C\nđặt trong không khí. Cường độ điện trường tại một điểm cách quả cầu\n3 cm\nlà",
+                    "options": {
+                        "A": "105 V/m.",
+                        "B": "5⋅105 V/m.",
+                        "C": "104 V/m.",
+                        "D": "3⋅104 V/m."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532129370",
+                    "content": "Một quả cầu nhỏ mang điện tích\nq=10−9  C\nđặt trong không khí. Cường độ điện trường tại một điểm cách quả cầu\n3 cm\nlà",
+                    "options": {
+                        "A": "3⋅104 V/m.",
+                        "B": "104 V/m.",
+                        "C": "5⋅105 V/m.",
+                        "D": "105 V/m."
+                    },
+                    "answer": "B"
+                },
+                {
+                    "id": "532129379",
+                    "content": "Công thức tính độ lớn cường độ điện trường của điện tích điểm\nQ\nđặt trong chân không là",
+                    "options": {
+                        "A": "E=k|Q|r2.",
+                        "B": "E=kQr2.",
+                        "C": "E=k|Q|r.",
+                        "D": "E=kQr."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532129369",
+                    "content": "Đại lượng cường độ điện trường tại một điểm dùng để đặc trưng cho tính chất nào của điện trường?",
+                    "options": {
+                        "A": "Khả năng tích điện các điện tích của những vật thể đặt tại điểm đang xét.",
+                        "B": "Tác dụng mạnh hay yếu của điện trường về mặt tác dụng lực lên điện tích.",
+                        "C": "Mức độ lớn hay nhỏ của năng lượng điện tích tại một vị trí xác định cụ thể.",
+                        "D": "Tốc độ di chuyển nhanh hay chậm của các điện tích điểm tại vị trí đang xét."
+                    },
+                    "answer": "B"
+                }
+            ],
+            '19,20': [
+                {
+                    "id": "532141066",
+                    "content": "Một electron bay với vận tốc ban đầu vào trong điện trường đều giữa hai bản kim loại phẳng theo hướng song song, cách đều hai bản. Nhận xét nào sau đây đúng?",
+                    "options": {
+                        "A": "Electron chuyển động nhanh dần về bản tích điện dương theo quỹ đạo thẳng vuông góc với hai bản kim loại.",
+                        "B": "Electron chuyển động chậm dần đều theo phương song song với hai bản kim loại.",
+                        "C": "Lực điện trường tác dụng lên electron cùng phương, ngược chiều với vecto vận tốc v0.",
+                        "D": "Electron chuyển động theo quỹ đạo cong về phía bản kim loại tích điện dương."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532141060",
+                    "content": "Điện thế là đại lượng đặc trưng cho riêng điện trường về khả năng",
+                    "options": {
+                        "A": "tạo điện năng tại một điểm.",
+                        "B": "tác dụng nhiệt tại một điểm.",
+                        "C": "sinh công tại một điểm.",
+                        "D": "tác dụng lực tại một điểm."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532141061",
+                    "content": "Khi độ lớn điện tích thử đặt tại một điểm tăng lên gấp đôi thì điện thế tại điểm đó sẽ",
+                    "options": {
+                        "A": "tăng gấp 4.",
+                        "B": "giảm một nửa.",
+                        "C": "tăng gấp đôi.",
+                        "D": "không đổi."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532141071",
+                    "content": "Các đường sức trong điện trường đều là những đường",
+                    "options": {
+                        "A": "cong.",
+                        "B": "thẳng song song cách đều nhau.",
+                        "C": "thẳng vuông góc với nhau.",
+                        "D": "cong cách đều nhau."
+                    },
+                    "answer": "B"
+                },
+                {
+                    "id": "532141075",
+                    "content": "Điện tích bay vào điện trường đều, quỹ đạo chuyển động là cung parabol có bề lõm hướng lên khi điện tích",
+                    "options": {
+                        "A": "q≠0.",
+                        "B": "q=0.",
+                        "C": "q<0.",
+                        "D": "q>0."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532141063",
+                    "content": "Thế năng của một điện tích q đặt tại một điểm trong điện trường đặc trưng cho",
+                    "options": {
+                        "A": "khả năng sinh công của điện trường tại đó.",
+                        "B": "tốc độ dịch chuyển của điện tích tại đó.",
+                        "C": "khối lượng của hạt mang điện tại vị trí đó.",
+                        "D": "độ mạnh yếu của lực điện tại vị trí đó."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532141062",
+                    "content": "Một điện tích\nq = 10−6  C\ndi chuyển từ điểm\nA\nđến điểm\nB\ntrong một điện trường, thì thực hiện một công là\n2⋅10−4  J.\nHiệu điện thế giữa hai điểm\nA\nvà\nB\nlà",
+                    "options": {
+                        "A": "400  V.",
+                        "B": "200  V.",
+                        "C": "−200  V.",
+                        "D": "−40  V."
+                    },
+                    "answer": "B"
+                },
+                {
+                    "id": "532141064",
+                    "content": "Khi một điện tích điểm\nq>0\nđược đặt tại một điểm có điện thế V trong điện trường. Nếu tăng gấp đôi giá trị điện thế tại điểm đó thì thế năng của nó sẽ",
+                    "options": {
+                        "A": "không có sự thay đổi.",
+                        "B": "giảm xuống hai lần.",
+                        "C": "tăng lên gấp hai lần.",
+                        "D": "tăng lên gấp bốn lần."
+                    },
+                    "answer": "C"
+                }
+            ],
+            '22': [
+                {
+                    "id": "532148086",
+                    "content": "Dòng điện trong kim loại là dòng chuyển dời có hướng của",
+                    "options": {
+                        "A": "các ion âm.",
+                        "B": "các ion dương.",
+                        "C": "các electron tự do.",
+                        "D": "các nguyên tử."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532148084",
+                    "content": "Dòng điện không đổi là dòng điện có",
+                    "options": {
+                        "A": "chiều không thay đổi theo thời gian.",
+                        "B": "cường độ không thay đổi theo thời gian.",
+                        "C": "điện lượng chuyển qua tiết diện thẳng của dây không đổi theo thời gian.",
+                        "D": "chiều và cường độ không thay đổi theo thời gian."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532148080",
+                    "content": "Một dây dẫn bằng đồng có tiết diện\n1 mm2\nmang dòng điện\n1,6 A.\nBiết mật độ electron tự do là\n8,5⋅1028m−3.\nTốc độ trôi của electron gần nhất với giá trị nào sau đây.",
+                    "options": {
+                        "A": "1,250 mm/s.",
+                        "B": "0,118 mm/s.",
+                        "C": "0,012 mm/s.",
+                        "D": "1,180 mm/s."
+                    },
+                    "answer": "B"
+                },
+                {
+                    "id": "532148083",
+                    "content": "Tác dụng đặc trưng nhất của dòng điện là tác dụng",
+                    "options": {
+                        "A": "từ.",
+                        "B": "nhiệt.",
+                        "C": "cơ học.",
+                        "D": "hóa học."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532148078",
+                    "content": "Đại lượng cường độ dòng điện chạy qua một vật dẫn dùng để đặc trưng cho",
+                    "options": {
+                        "A": "khả năng chịu nhiệt của vật dẫn dòng điện.",
+                        "B": "tốc độ dịch chuyển của các nguyên tử tự do.",
+                        "C": "năng lượng dự trữ bên trong nguồn điện đó.",
+                        "D": "tác dụng mạnh hay yếu của dòng điện đó."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532148077",
+                    "content": "Cường độ dòng điện không đổi chạy qua dây tóc của một bóng đèn là 0,5 A thì điện lượng dịch chuyển qua tiết diện thẳng của dây tóc trong một phút là",
+                    "options": {
+                        "A": "30 C.",
+                        "B": "70 C.",
+                        "C": "80 C.",
+                        "D": "60 C."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532148081",
+                    "content": "Dòng điện là",
+                    "options": {
+                        "A": "dòng dịch chuyển của điện tích.",
+                        "B": "dòng dịch chuyển có hướng của các ion dương và âm.",
+                        "C": "dòng dịch chuyển của các điện tích tự do.",
+                        "D": "dòng dịch chuyển có hướng của các điện tích tự do."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532148082",
+                    "content": "Quy ước chiều dòng điện là chiều dịch chuyển của các",
+                    "options": {
+                        "A": "điện tích dương.",
+                        "B": "ion âm.",
+                        "C": "ion.",
+                        "D": "electron."
+                    },
+                    "answer": "A"
+                }
+            ],
+            '18': [
+                {
+                    "id": "532130774",
+                    "content": "Ứng dụng của hạt điện tích chuyển động trong điện trường đều có trong",
+                    "options": {
+                        "A": "máy giặt.",
+                        "B": "máy phát điện.",
+                        "C": "máy hút ẩm.",
+                        "D": "máy lọc nước."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532130773",
+                    "content": "Quỹ đạo chuyển động của hạt điện tích trong điện trường đều là",
+                    "options": {
+                        "A": "cung parabol.",
+                        "B": "đường tròn.",
+                        "C": "đường thẳng.",
+                        "D": "elip."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532130771",
+                    "content": "Thả cho một electron không có vận tốc đầu trong một điện trường. Electron đó có chuyển động",
+                    "options": {
+                        "A": "từ điểm có điện thế thấp lên điểm có điện thế cao.",
+                        "B": "dọc theo một đường sức điện.",
+                        "C": "từ điểm có điện thế cao xuống điểm có điện thế thấp.",
+                        "D": "theo đường cong."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532130766",
+                    "content": "Điện trường đều là điện trường mà cường độ điện trường của nó",
+                    "options": {
+                        "A": "có hướng khác nhau tại mọi điểm.",
+                        "B": "có độ lớn tăng dần theo thời gian.",
+                        "C": "có hướng như nhau tại mọi điểm.",
+                        "D": "có độ lớn giảm dần theo thời gian."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532130770",
+                    "content": "Một electron bay với vận tốc ban đầu vào trong điện trường đều giữa hai bản kim loại phẳng theo hướng song song, cách đều hai bản. Nhận xét nào sau đây đúng?",
+                    "options": {
+                        "A": "Electron chuyển động nhanh dần về bản tích điện dương theo quỹ đạo thẳng vuông góc với hai bản kim loại.",
+                        "B": "Lực điện trường tác dụng lên electron cùng phương, ngược chiều với vecto vận tốc v0.",
+                        "C": "Electron chuyển động theo quỹ đạo cong về phía bản kim loại tích điện dương.",
+                        "D": "Electron chuyển động chậm dần đều theo phương song song với hai bản kim loại."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532130775",
+                    "content": "Các đường sức trong điện trường đều là những đường",
+                    "options": {
+                        "A": "thẳng song song cách đều nhau.",
+                        "B": "cong.",
+                        "C": "cong cách đều nhau.",
+                        "D": "thẳng vuông góc với nhau."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532130768",
+                    "content": "Điện trường đều được định nghĩa là một điện trường có đặc điểm nào sau đây tại mọi điểm?",
+                    "options": {
+                        "A": "Vectơ cường độ điện trường có độ lớn thay đổi liên tục.",
+                        "B": "Vectơ cường độ điện trường có hướng luôn luôn thay đổi.",
+                        "C": "Độ lớn của cường độ điện trường tại mọi điểm bằng không.",
+                        "D": "Vectơ cường độ điện trường tại mọi điểm đều bằng nhau."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532130769",
+                    "content": "Hai bản kim loại phẳng song song cách nhau\n2 cm\nđược nối với nguồn điện có hiệu điện thế\n100 V.\nCường độ điện trường giữa hai bản là",
+                    "options": {
+                        "A": "5000 V/m.",
+                        "B": "200 V/m.",
+                        "C": "2000 V/m.",
+                        "D": "50 V/m."
+                    },
+                    "answer": "A"
+                }
+            ],
+            '21': [
+                {
+                    "id": "532146195",
+                    "content": "Năng lượng của tụ điện được xác định bằng công thức",
+                    "options": {
+                        "A": "W=Q22C.",
+                        "B": "W=QU22.",
+                        "C": "W=QC2.",
+                        "D": "W=CU2."
+                    },
+                    "answer": "A"
+                },
+                {
+                    "id": "532146185",
+                    "content": "Trong hệ SI, đơn vị điện dung có tên là gì?",
+                    "options": {
+                        "A": "Vôn trên mét (V/m).",
+                        "B": "Cu–lông (C).",
+                        "C": "Fara (F).",
+                        "D": "Vôn (V)."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532146190",
+                    "content": "Trong trường hợp nào ta có một tụ điện?",
+                    "options": {
+                        "A": "Hai tấm kẽm ngâm trong dung dịch axit.",
+                        "B": "Hai tấm gỗ khô đặt cách nhau một khoảng trong không khí.",
+                        "C": "Hai tấm nhôm đặt cách nhau một khoảng trong nước nguyên chất.",
+                        "D": "Hai tấm nhựa phủ ngoài một lá nhôm."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532146189",
+                    "content": "Tụ điện là hệ thống gồm",
+                    "options": {
+                        "A": "hai vật đặt gần nhau và ngăn cách nhau bằng một lớp cách điện.",
+                        "B": "hai vật dẫn đặt tiếp xúc với nhau và được bao bọc bằng điện môi.",
+                        "C": "hai vật dẫn đặt cách nhau một khoảng đủ xa.",
+                        "D": "hai vật dẫn đặt gần nhau và ngăn cách nhau bằng một lớp cách điện."
+                    },
+                    "answer": "D"
+                },
+                {
+                    "id": "532146186",
+                    "content": "Trong các thiết bị sau, thiết bị nào không sử dụng tụ điện?",
+                    "options": {
+                        "A": "Máy ảnh có đèn flash.",
+                        "B": "Mạch lọc nguồn.",
+                        "C": "Điện trở nhiệt.",
+                        "D": "Máy phát điện."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532146194",
+                    "content": "1  nF\nbằng",
+                    "options": {
+                        "A": "10−6  F.",
+                        "B": "10−3  F.",
+                        "C": "10−9  F.",
+                        "D": "10−12  F."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532146191",
+                    "content": "Để tích điện cho tụ điện, ta phải",
+                    "options": {
+                        "A": "đặt tụ gần nguồn điện.",
+                        "B": "đặt tụ gần vật nhiễm điện.",
+                        "C": "mắc vào hai đầu tụ một hiệu điện thế.",
+                        "D": "cọ xát các bản tụ với nhau."
+                    },
+                    "answer": "C"
+                },
+                {
+                    "id": "532146187",
+                    "content": "Trong hệ thống đo lường quốc tế SI, đơn vị đo điện dung của tụ điện được gọi tên là gì và ký hiệu ra sao?",
+                    "options": {
+                        "A": "Đơn vị đo là vôn, được ký hiệu chính thức bằng chữ V.",
+                        "B": "Đơn vị đo là niutơn, được ký hiệu chính thức bằng chữ N.",
+                        "C": "Đơn vị đo là jun, được ký hiệu chính thức bằng chữ J.",
+                        "D": "Đơn vị đo là fara, được ký hiệu chính thức bằng chữ F."
+                    },
+                    "answer": "D"
+                }
+            ]
+        };
+
+        const STORAGE_KEY = 'quizAttempts';
+        const LAST_LESSON_KEY = 'lastLesson';
+
+        let currentQuestions = [];
+        let userAnswers = {};
+        let isSubmitted = false;
+        let lessonStartTime = null;
+
+        const quizContainer = document.getElementById('quizContainer');
+        const lessonSelect = document.getElementById('lessonSelect');
+        const submitBtn = document.getElementById('submitBtn');
+        const continueBtn = document.getElementById('continueBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const statsSummary = document.getElementById('statsSummary');
+        const statsChart = document.getElementById('statsChart');
+
+        function shuffleArray(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function initSelectBox() {
+            lessonSelect.innerHTML = '';
+
+            fileList.forEach(fileName => {
+                const option = document.createElement('option');
+                option.value = fileName;
+                option.textContent = `Bài: ${fileName}`;
+                lessonSelect.appendChild(option);
+            });
+
+            const mixedOption = document.createElement('option');
+            mixedOption.value = 'mixed';
+            mixedOption.textContent = 'Hỗn hợp (Trộn tất cả)';
+            lessonSelect.appendChild(mixedOption);
+        }
+
+        function loadAttempts() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                console.error('Lỗi đọc thống kê:', error);
+                return [];
+            }
+        }
+
+        function saveAttempts(attempts) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(attempts));
+        }
+
+        function formatDuration(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function renderStats(lessonKey) {
+            const attempts = loadAttempts();
+            const selectedKey = lessonKey || lessonSelect.value;
+            const filtered = attempts.filter(item => item.lessonKey === selectedKey);
+
+            if (filtered.length === 0) {
+                statsSummary.textContent = 'Chưa có dữ liệu.';
+                statsChart.innerHTML = '';
+                return;
+            }
+
+            const totalCorrect = filtered.reduce((sum, item) => sum + item.score, 0);
+            const totalQuestions = filtered.reduce((sum, item) => sum + item.total, 0);
+            const totalTime = filtered.reduce((sum, item) => sum + item.durationSec, 0);
+            const accuracy = totalQuestions ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+            const avgTime = Math.round(totalTime / filtered.length);
+
+            statsSummary.textContent = `Lần làm: ${filtered.length} · Tỷ lệ đúng: ${accuracy}% · TB thời gian: ${formatDuration(avgTime)}`;
+
+            statsChart.innerHTML = filtered.map((item, index) => {
+                const correctPercent = item.total ? Math.round((item.score / item.total) * 100) : 0;
+                const wrongPercent = 100 - correctPercent;
+                return `
+                    <div class="stats-row">
+                        <div class="stats-label">Lần ${index + 1}</div>
+                        <div class="stats-bar">
+                            <div class="stats-correct" style="width: ${correctPercent}%;"></div>
+                            <div class="stats-wrong" style="width: ${wrongPercent}%;"></div>
+                        </div>
+                        <div class="stats-meta">${item.score}/${item.total} · ${formatDuration(item.durationSec)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateContinueButton() {
+            const lastLesson = localStorage.getItem(LAST_LESSON_KEY);
+            if (lastLesson) {
+                continueBtn.classList.remove('hidden');
+            } else {
+                continueBtn.classList.add('hidden');
+            }
+        }
+
+        async function loadLesson(lessonKey) {
+            userAnswers = {};
+            isSubmitted = false;
+            quizContainer.classList.remove('submitted');
+            submitBtn.classList.add('hidden');
+            retryBtn.classList.add('hidden');
+            scoreDisplay.classList.add('hidden');
+            quizContainer.innerHTML = '<p class="text-center text-gray-500 mt-10">Đang tải dữ liệu...</p>';
+
+            lessonStartTime = Date.now();
+            localStorage.setItem(LAST_LESSON_KEY, lessonKey);
+            updateContinueButton();
+
+            try {
+                if (lessonKey === 'mixed') {
+                    const allDataArrays = fileList.map(name => sampleData[name] || []);
+                    const combinedData = allDataArrays.flat();
+                    currentQuestions = shuffleArray(combinedData);
+                } else {
+                    const lessonData = sampleData[lessonKey];
+                    if (!lessonData) throw new Error('Không tìm thấy dữ liệu bài học');
+                    currentQuestions = lessonData;
+                }
+
+                renderQuiz();
+                renderStats(lessonKey);
+            } catch (error) {
+                console.error("Lỗi khi load file:", error);
+                quizContainer.innerHTML = `<p class="text-center text-red-500 mt-10">Lỗi tải dữ liệu. Hãy chắc chắn dữ liệu bài học có tồn tại.</p>`;
+            }
+        }
+
+        function renderQuiz() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (!currentQuestions || currentQuestions.length === 0) {
+                quizContainer.innerHTML = '<p class="text-center text-gray-500 mt-10">Không có câu hỏi nào.</p>';
+                return;
+            }
+
+            submitBtn.classList.remove('hidden');
+
+            const html = currentQuestions.map((q, index) => `
+                <div class="card p-5 sm:p-6 rounded-2xl border" id="card-${q.id}" style="animation-delay: ${index * 40}ms;">
+                    <p class="card-title font-medium text-lg mb-5">
+                        <span class="font-bold text-blue-400 mr-1">Câu ${index + 1}:</span>
+                        ${q.content.replace(/\n/g, '<br>')}
+                    </p>
+                    <div class="space-y-3">
+                        ${Object.entries(q.options).map(([key, value]) => `
+                            <label class="block relative cursor-pointer option-label group">
+                                <input type="radio" name="question_${q.id}" value="${key}" class="peer sr-only" onchange="handleSelect('${q.id}', '${key}')">
+                                <div id="opt-${q.id}-${key}" class="option-box p-4 rounded-xl border transition duration-200 flex items-start">
+                                    <span class="font-bold text-slate-200 mr-3 w-6 text-center">${key}.</span>
+                                    <span class="text-slate-200 leading-relaxed">${value}</span>
+                                </div>
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button class="answer-btn" type="button" onclick="showAnswer('${q.id}')">Xem đáp án</button>
+                    </div>
+                </div>
+            `).join('');
+
+            quizContainer.innerHTML = html;
+        }
+
+        window.showAnswer = (questionId) => {
+            const question = currentQuestions.find(q => String(q.id) === String(questionId));
+            if (!question) return;
+            const correctEl = document.getElementById(`opt-${question.id}-${question.answer}`);
+            if (correctEl) correctEl.classList.toggle('correct-answer');
+        };
+
+        window.handleSelect = (questionId, optionKey) => {
+            if (!isSubmitted) {
+                userAnswers[questionId] = optionKey;
+            }
+        };
+
+        function submitQuiz() {
+            if (isSubmitted) return;
+
+            if (Object.keys(userAnswers).length < currentQuestions.length) {
+                const confirmSubmit = confirm("Bạn chưa trả lời hết các câu hỏi. Vẫn muốn nộp bài?");
+                if (!confirmSubmit) return;
+            }
+
+            isSubmitted = true;
+            quizContainer.classList.add('submitted');
+
+            let score = 0;
+
+            currentQuestions.forEach(q => {
+                const userAns = userAnswers[q.id];
+                const correctAns = q.answer;
+
+                const correctEl = document.getElementById(`opt-${q.id}-${correctAns}`);
+                if (correctEl) correctEl.classList.add('correct-answer');
+
+                if (userAns) {
+                    if (userAns === correctAns) {
+                        score++;
+                    } else {
+                        const wrongEl = document.getElementById(`opt-${q.id}-${userAns}`);
+                        if (wrongEl) wrongEl.classList.add('wrong-answer');
+                    }
+                }
+            });
+
+            const durationSec = lessonStartTime ? Math.max(0, Math.round((Date.now() - lessonStartTime) / 1000)) : 0;
+            const attempts = loadAttempts();
+            attempts.push({
+                lessonKey: lessonSelect.value,
+                score,
+                total: currentQuestions.length,
+                durationSec,
+                ts: Date.now()
+            });
+            saveAttempts(attempts);
+            renderStats(lessonSelect.value);
+
+            scoreDisplay.textContent = `Điểm: ${score} / ${currentQuestions.length}`;
+            scoreDisplay.classList.remove('hidden');
+
+            submitBtn.classList.add('hidden');
+            retryBtn.classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+        submitBtn.addEventListener('click', submitQuiz);
+        continueBtn.addEventListener('click', () => {
+            const lastLesson = localStorage.getItem(LAST_LESSON_KEY);
+            const target = lastLesson || lessonSelect.value || fileList[0];
+            lessonSelect.value = target;
+            loadLesson(target);
+        });
+        retryBtn.addEventListener('click', () => loadLesson(lessonSelect.value));
+
+        initSelectBox();
+        updateContinueButton();
+        if (fileList.length > 0) {
+            const lastLesson = localStorage.getItem(LAST_LESSON_KEY);
+            const initialLesson = lastLesson || fileList[0];
+            lessonSelect.value = initialLesson;
+            loadLesson(initialLesson);
+        }
+    </script>
+</body>
+</html>
+
