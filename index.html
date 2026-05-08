@@ -95,7 +95,7 @@
                 },
                 {
                     "id": "532127388",
-                    "content": "Bốn vật kích thước nhỏ A, B, C, D\nA, B, C, D\nnhiễm điện. Vật\nA\nhút vật B nhưng đẩy vật C vật C hút vật",
+                    "content": "Bốn vật kích thước nhỏ A, B, C, D. A, B, C, D\nnhiễm điện. Vật A hút vật B nhưng đẩy vật C vật C hút vật",
                     "options": {
                         "D": "B âm, C âm, D dương.",
                         "A": "B âm, C dương, D dương.",
@@ -106,12 +106,12 @@
                 },
                 {
                     "id": "532127392",
-                    "content": "Hai chất điểm mang điện tích\nq1\nvà\nq2\nkhi đặt gần nhau chúng đẩy nhau. Kết luận nào sau đây không đúng?",
+                    "content": "Hai chất điểm mang điện tích q1 và q2 khi đặt gần nhau chúng đẩy nhau. Kết luận nào sau đây không đúng?",
                     "options": {
-                        "A": "q1\nvà\nq2\ntrái dấu nhau.",
-                        "B": "q1\nvà\nq2\nđều là điện tích âm.",
-                        "C": "q1\nvà\nq2\ncùng dấu nhau.",
-                        "D": "q1\nvà\nq2\nđều là điện tích dương."
+                        "A": "q1 và q2 trái dấu nhau.",
+                        "B": "q1 và q2 đều là điện tích âm.",
+                        "C": "q1 và q2 cùng dấu nhau.",
+                        "D": "q1 và q2 đều là điện tích dương."
                     },
                     "answer": "A"
                 },
@@ -128,7 +128,8 @@
                 },
                 {
                     "id": "532127389",
-                    "content": "Dấu của các điện tích\nq1, q2\ntrên hình là",
+                    "content": "Dấu của các điện tích q1, q2 trên hình là",
+                    "img_url": "https://liveazotastoragept112025.azota.vn/exam_questions/m05_2026/d03/25622678/5592caa5fe31e640d07b24d00fc61158.png",
                     "options": {
                         "A": "q1.q2>0",
                         "B": "q1>0,q2<0.",
@@ -795,12 +796,21 @@
 
             const html = currentQuestions.map((q, index) => {
                 const isStarred = starredSet.has(String(q.id));
+
+                // MỚI THÊM: Đoạn code này kiểm tra và tạo block html chứa ảnh nếu có img_url
+                const imageHTML = q.img_url
+                    ? `<div class="mb-5 flex justify-center"><img src="${q.img_url}" alt="Hình minh họa" class="max-w-full h-auto rounded-lg border border-slate-600 shadow-sm" style="max-height: 250px;"></div>`
+                    : '';
+
                 return `
                 <div class="card p-5 sm:p-6 rounded-2xl border" id="card-${q.id}" style="animation-delay: ${index * 40}ms;">
                     <p class="card-title font-medium text-lg mb-5">
                         <span class="font-bold text-blue-400 mr-1">Câu ${index + 1}:</span>
                         ${q.content.replace(/\n/g, '<br>')}
                     </p>
+
+                    ${imageHTML}
+
                     <div class="space-y-3">
                         ${Object.entries(q.options).map(([key, value]) => `
                             <label class="block relative cursor-pointer option-label group">
@@ -944,4 +954,3 @@
     </script>
 </body>
 </html>
-
